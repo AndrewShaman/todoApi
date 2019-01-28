@@ -16,3 +16,13 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::post('register', 'AuthController@register');
+Route::post('login', 'AuthController@login');
+
+Route::group(['middleware' => ['jwt.verify']], function () {
+    Route::apiResource('projects', 'ProjectController');
+    Route::post('/projects/{project}/tasks/', 'TaskController@store');
+    Route::delete('/projects/{project}/tasks/{task}/', 'TaskController@destroy');
+});
+
