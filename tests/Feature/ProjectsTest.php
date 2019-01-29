@@ -24,6 +24,7 @@ class ProjectsTest extends TestCase
     {
         $user = factory('App\User')->create();
         $project = factory('App\Project')->create(['user_id' => 999]);
+
         $this->apiAs($user,'GET',"/api/projects/$project->id")->assertStatus(403);
     }
 
@@ -48,7 +49,6 @@ class ProjectsTest extends TestCase
     function project_can_be_updated()
     {
         $user = factory('App\User')->create();
-
         $project = factory('App\Project')->create(['user_id' => $user->id]);
 
         $this->apiAs($user,'PATCH', "/api/projects/$project->id", [
@@ -66,10 +66,19 @@ class ProjectsTest extends TestCase
     function project_can_be_deleted()
     {
         $user = factory('App\User')->create();
-
         $project = factory('App\Project')->create();
 
-        $this->apiAs($user, 'DELETE', "/api/projects/$project->id", $project->toArray())->assertStatus(204);
+        $this->apiAs($user, 'DELETE', "/api/projects/$project->id", $project->toArray())
+            ->assertStatus(204);
         $this->assertDatabaseMissing('projects', $project->toArray());
+    }
+
+    /** @test */
+    function user_can_delete_only_his_projects()
+    {
+        $user = factory('App\User')->create(['id' => 0]);
+        $project = factory('App\Project')->create(['user_id' => 1]);
+
+        $this->apiAs($user, 'DELETE', "/api/projects/$project->id", $project->toArray())->assertStatus(403);
     }
 }

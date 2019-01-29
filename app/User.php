@@ -11,8 +11,6 @@ class User extends Authenticatable implements JWTSubject
     use Notifiable;
 
     /**
-     * The attributes that are mass assignable.
-     *
      * @var array
      */
     protected $fillable = [
@@ -28,16 +26,25 @@ class User extends Authenticatable implements JWTSubject
         'password', 'remember_token',
     ];
 
+    /**
+     * @return mixed
+     */
     public function getJWTIdentifier()
     {
         return $this->getKey();
     }
 
+    /**
+     * @return array
+     */
     public function getJWTCustomClaims()
     {
         return [];
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function project()
     {
         return $this->hasMany(Project::class, 'user_id');

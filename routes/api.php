@@ -22,7 +22,10 @@ Route::post('login', 'AuthController@login');
 
 Route::group(['middleware' => ['jwt.verify']], function () {
     Route::apiResource('projects', 'ProjectController');
-    Route::post('/projects/{project}/tasks/', 'TaskController@store');
-    Route::delete('/projects/{project}/tasks/{task}/', 'TaskController@destroy');
+    
+    Route::get('projects/{project}/tasks', 'TaskController@index');
+    Route::post('projects/{project}/tasks', 'TaskController@store');
+    Route::patch('projects/{project}/tasks/{task}', 'TaskController@update');
+    Route::delete('projects/{project}/tasks/{task}', 'TaskController@destroy');
 });
 

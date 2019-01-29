@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ProjectResource;
 use App\Project;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Exceptions\CustomExceptions\NoContentHttpException;
 
 class ProjectController extends Controller
 {
@@ -40,12 +42,12 @@ class ProjectController extends Controller
     /**
      * @param Request $request
      * @param Project $project
-     * @return ProjectResource|\Illuminate\Http\JsonResponse
+     * @return ProjectResource
      */
     public function show(Request $request, Project $project)
     {
         if ($request->user()->id != $project->user_id) {
-            return response()->json(['error' => 'Access denied.'], 403);
+            throw new AccessDeniedHttpException();
         }
 
         return new ProjectResource($project);
@@ -59,7 +61,7 @@ class ProjectController extends Controller
     public function update(Request $request, Project $project)
     {
         if ($request->user()->id != $project->user_id) {
-            return response()->json(['error' => 'You can edit only your projects.'], 403);
+            throw new AccessDeniedHttpException();
         }
 
         $validated = Validator::make($request->all(), [
@@ -76,14 +78,18 @@ class ProjectController extends Controller
     }
 
     /**
+     * @param Request $request
      * @param Project $project
-     * @return \Illuminate\Http\JsonResponse
      * @throws \Exception
      */
-    public function destroy(Project $project)
+    public function destroy(Request $request, Project $project)
     {
+        if ($request->user()->id != $project->id) {
+            throw new AccessDeniedHttpException();
+        }
+
         $project->delete();
 
-        return response()->json(null, 204);
+        throw new NoContentHttpException();
     }
 }
