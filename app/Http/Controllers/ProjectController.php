@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Exceptions\CustomExceptions\ProjectBadRequestHttpException;
 use App\Http\Resources\ProjectResource;
 use App\Project;
+use App\User;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -26,15 +28,7 @@ class ProjectController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'description' => 'required|string|max:255'
-        ]);
-
-        if($validated->fails()) {
-            throw new ProjectBadRequestHttpException();
-        }
-
+        $this->isProjectValid($request);
         $project = Project::create($request->all() + ['user_id' => auth()->id()]);
 
         return new ProjectResource($project);
@@ -47,9 +41,7 @@ class ProjectController extends Controller
      */
     public function show(Request $request, Project $project)
     {
-        if ($request->user()->id != $project->user_id) {
-            throw new AccessDeniedHttpException();
-        }
+        $this->isOwner($request, $project);
 
         return new ProjectResource($project);
     }
@@ -61,20 +53,10 @@ class ProjectController extends Controller
      */
     public function update(Request $request, Project $project)
     {
-        if ($request->user()->id != $project->user_id) {
-            throw new AccessDeniedHttpException();
-        }
-
-        $validated = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'description' => 'required|string|max:255'
-        ]);
-
-        if($validated->fails()) {
-            throw new ProjectBadRequestHttpException();
-        }
-
+        $this->isOwner($request, $project);
+        $this->isProjectValid($request);
         $project->update($request->only(['title', 'description']));
+
         return new ProjectResource($project);
     }
 
@@ -85,12 +67,37 @@ class ProjectController extends Controller
      */
     public function destroy(Request $request, Project $project)
     {
-        if ($request->user()->id != $project->id) {
-            throw new AccessDeniedHttpException();
-        }
-
+//        User::getUserAndProjectById(auth()->user()->id);
+//        $project = Project::findOrFail($id);
+        $this->isOwner($request, $project);
         $project->delete();
 
         throw new NoContentHttpException();
+    }
+
+    /**
+     * @param Request $request
+     * @param Project $project
+     */
+    protected function isOwner(Request $request, Project $project)
+    {
+        if ($request->user()->id != $project->user_id) {
+            throw new AccessDeniedHttpException();
+        }
+    }
+
+    /**
+     * @param Request $request
+     */
+    protected function isProjectValid(Request $request)
+    {
+        $validated = Validator::make($request->all(), [
+            'title' => 'required|string|max:255',
+            'description' => 'required|string|max:255'
+        ]);
+
+        if ($validated->fails()) {
+            throw new ProjectBadRequestHttpException();
+        }
     }
 }

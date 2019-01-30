@@ -18,6 +18,8 @@ class TaskResource extends Resource
             'id' => $this->id,
             'project_id' => $this->project_id,
             'description' => $this->description,
+            'created_at' => (string) $this->created_at,
+            'updated_at' => (string) $this->updated_at,
         ];
     }
 }

@@ -29,14 +29,7 @@ class TaskController extends Controller
      */
     public function store(Request $request, Project $project)
     {
-        $validated = Validator::make($request->all(), [
-            'description' => 'required|string|max:255'
-        ]);
-
-        if($validated->fails()) {
-            throw new TaskBadRequestHttpException();
-        }
-
+        $this->isTaskValid($request);
         $task = Task::create($request->all() + ['project_id' => $project->id]);
 
         return new TaskResource($task);
@@ -50,18 +43,8 @@ class TaskController extends Controller
      */
     public function update(Project $project, Task $task, Request $request)
     {
-        if ($request->user()->id != $project->id) {
-            throw new AccessDeniedHttpException();
-        }
-
-        $validated = Validator::make($request->all(), [
-            'description' => 'required|string|max:255',
-        ]);
-
-        if($validated->fails()) {
-            throw new TaskBadRequestHttpException();
-        }
-
+        $this->isOwner($project, $request);
+        $this->isTaskValid($request);
         $task->update($request->only('description'));
 
         return new TaskResource($task);
@@ -75,12 +58,34 @@ class TaskController extends Controller
      */
     public function destroy(Request $request, Project $project, Task $task)
     {
-        if ($request->user()->id != $project->id) {
-            throw new AccessDeniedHttpException();
-        }
-
+        $this->isOwner($project, $request);
         $task->delete();
 
         throw new NoContentHttpException();
+    }
+
+    /**
+     * @param Request $request
+     */
+    protected function isTaskValid(Request $request)
+    {
+        $validated = Validator::make($request->all(), [
+            'description' => 'required|string|max:255'
+        ]);
+
+        if ($validated->fails()) {
+            throw new TaskBadRequestHttpException();
+        }
+    }
+
+    /**
+     * @param Project $project
+     * @param Request $request
+     */
+    protected function isOwner(Project $project, Request $request)
+    {
+        if ($request->user()->id != $project->id) {
+            throw new AccessDeniedHttpException();
+        }
     }
 }

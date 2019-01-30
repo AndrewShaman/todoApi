@@ -66,7 +66,7 @@ class ProjectsTest extends TestCase
     function user_can_delete_project()
     {
         $user = factory('App\User')->create();
-        $project = factory('App\Project')->create();
+        $project = factory('App\Project')->create(['user_id' => $user->id]);
 
         $this->apiAs($user, 'DELETE', "/api/projects/$project->id", $project->toArray())
             ->assertStatus(204);
