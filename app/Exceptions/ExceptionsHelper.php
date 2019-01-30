@@ -2,16 +2,22 @@
 
 namespace App\Exceptions;
 
+use App\Exceptions\CustomExceptions\TaskBadRequestHttpException;
 use Illuminate\Http\Response;
 use App\Exceptions\CustomExceptions\NoContentHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use App\Exceptions\CustomExceptions\ProjectBadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 trait ExceptionsHelper
 {
+    /**
+     * @param $request
+     * @param $exception
+     * @return \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
+     */
     public function apiExceptions($request, $exception)
     {
         if ($exception instanceof ModelNotFoundException) {
@@ -42,8 +48,16 @@ trait ExceptionsHelper
             ], Response::HTTP_METHOD_NOT_ALLOWED);
         }
 
-        if ($exception instanceof BadRequestHttpException) {
-            return response()->json([''], Response::HTTP_BAD_REQUEST);
+        if ($exception instanceof ProjectBadRequestHttpException) {
+            return response()->json([
+                'error' => 'Title and description are required.'
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        if ($exception instanceof TaskBadRequestHttpException) {
+            return response()->json([
+                'error' => 'Description is required.'
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         return parent::render($request, $exception);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\CustomExceptions\ProjectBadRequestHttpException;
 use App\Http\Resources\ProjectResource;
 use App\Project;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -21,7 +22,7 @@ class ProjectController extends Controller
 
     /**
      * @param Request $request
-     * @return ProjectResource|\Illuminate\Http\JsonResponse
+     * @return ProjectResource
      */
     public function store(Request $request)
     {
@@ -31,7 +32,7 @@ class ProjectController extends Controller
         ]);
 
         if($validated->fails()) {
-            return response()->json($validated->errors(), 400);
+            throw new ProjectBadRequestHttpException();
         }
 
         $project = Project::create($request->all() + ['user_id' => auth()->id()]);
@@ -56,7 +57,7 @@ class ProjectController extends Controller
     /**
      * @param Request $request
      * @param Project $project
-     * @return ProjectResource|\Illuminate\Http\JsonResponse
+     * @return ProjectResource
      */
     public function update(Request $request, Project $project)
     {
@@ -70,7 +71,7 @@ class ProjectController extends Controller
         ]);
 
         if($validated->fails()) {
-            return response()->json($validated->errors(), 400);
+            throw new ProjectBadRequestHttpException();
         }
 
         $project->update($request->only(['title', 'description']));

@@ -46,7 +46,7 @@ class ProjectsTest extends TestCase
     }
 
     /** @test */
-    function project_can_be_updated()
+    function user_can_update_project()
     {
         $user = factory('App\User')->create();
         $project = factory('App\Project')->create(['user_id' => $user->id]);
@@ -63,7 +63,7 @@ class ProjectsTest extends TestCase
     }
 
     /** @test */
-    function project_can_be_deleted()
+    function user_can_delete_project()
     {
         $user = factory('App\User')->create();
         $project = factory('App\Project')->create();

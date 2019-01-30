@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\CustomExceptions\TaskBadRequestHttpException;
 use App\Project;
 use App\Task;
 use App\Http\Resources\TaskResource;
@@ -24,7 +25,7 @@ class TaskController extends Controller
     /**
      * @param Request $request
      * @param Project $project
-     * @return TaskResource|\Illuminate\Http\JsonResponse
+     * @return TaskResource
      */
     public function store(Request $request, Project $project)
     {
@@ -33,7 +34,7 @@ class TaskController extends Controller
         ]);
 
         if($validated->fails()) {
-            return response()->json($validated->errors(), 400);
+            throw new TaskBadRequestHttpException();
         }
 
         $task = Task::create($request->all() + ['project_id' => $project->id]);
@@ -45,7 +46,7 @@ class TaskController extends Controller
      * @param Project $project
      * @param Task $task
      * @param Request $request
-     * @return TaskResource|\Illuminate\Http\JsonResponse
+     * @return TaskResource
      */
     public function update(Project $project, Task $task, Request $request)
     {
@@ -58,7 +59,7 @@ class TaskController extends Controller
         ]);
 
         if($validated->fails()) {
-            return response()->json($validated->errors(), 400);
+            throw new TaskBadRequestHttpException();
         }
 
         $task->update($request->only('description'));
