@@ -52,15 +52,4 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Project::class, 'user_id');
     }
-
-    /**
-     * @param int $id
-     * @return User[]|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
-     */
-//    public static function getUserAndProjectById(int $id)
-//    {
-//        $project = User::with('project')->where('id', $id)->get();
-//        return $project;
-//    }
-
 }
