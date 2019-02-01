@@ -4,6 +4,8 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -50,10 +52,17 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        if ($request->isJson()) {
-            return $this->apiExceptions($request, $exception);
+        if ($exception instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
+            return $this->getModelJsonResponseException();
+        } elseif ($exception instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
+            return $this->getHttpJsonResponseException();
+        } elseif ($exception instanceof ValidationException){
+            return $this->getValidationJsonResponseException($exception);
+        } elseif ($exception instanceof AccessDeniedHttpException) {
+            return $this->getForbiddenException();
         }
+        return $this->getBadRequestJsonResponseException($exception);
 
-        return parent::render($request, $exception);
+//        return parent::render($request, $exception);
     }
 }

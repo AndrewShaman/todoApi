@@ -2,64 +2,57 @@
 
 namespace App\Exceptions;
 
-use App\Exceptions\CustomExceptions\TaskBadRequestHttpException;
 use Illuminate\Http\Response;
-use App\Exceptions\CustomExceptions\NoContentHttpException;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use App\Exceptions\CustomExceptions\ProjectBadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 trait ExceptionsHelper
 {
-    /**
-     * @param $request
-     * @param $exception
-     * @return \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
-     */
-    public function apiExceptions($request, $exception)
+    public function getModelJsonResponseException()
     {
-        if ($exception instanceof ModelNotFoundException) {
-            return response()->json([
-                'error' => 'Model not found.'
-            ], Response::HTTP_NOT_FOUND);
-        }
+        return response()->json([
+            'data' => [
+                'message' => 'Model not found',
+                'status_code' => Response::HTTP_NOT_FOUND
+            ]
+        ], Response::HTTP_NOT_FOUND);
+    }
 
-        if ($exception instanceof NotFoundHttpException) {
-            return response()->json([
-                'error' => 'Route not found.'
-            ], Response::HTTP_NOT_FOUND);
-        }
+    public function getHttpJsonResponseException()
+    {
+        return response()->json([
+            'data' => [
+                'message' => 'Endpoint not found',
+                'status_code' => Response::HTTP_NOT_FOUND
+            ]
+        ], Response::HTTP_NOT_FOUND);
+    }
 
-        if ($exception instanceof AccessDeniedHttpException) {
-            return response()->json([
-                'error' => 'Access denied.'
-            ], Response::HTTP_FORBIDDEN);
-        }
+    public function getBadRequestJsonResponseException($exception)
+    {
+        return response()->json([
+            'data' => [
+                'message' => $exception->getMessage(),
+                'status_code' => Response::HTTP_BAD_REQUEST
+            ]
+        ], Response::HTTP_BAD_REQUEST);
+    }
 
-        if ($exception instanceof NoContentHttpException) {
-            return response()->json(null, Response::HTTP_NO_CONTENT);
-        }
+    public function getValidationJsonResponseException($exception)
+    {
+        return response()->json([
+            'data' => [
+                'message' => $exception->errors(),
+                'status_code' => Response::HTTP_BAD_REQUEST
+            ]
+        ], Response::HTTP_BAD_REQUEST);
+    }
 
-        if ($exception instanceof MethodNotAllowedHttpException) {
-            return response()->json([
-                 'error' => 'Method not allowed.'
-            ], Response::HTTP_METHOD_NOT_ALLOWED);
-        }
-
-        if ($exception instanceof ProjectBadRequestHttpException) {
-            return response()->json([
-                'error' => 'Title and description are required.'
-            ], Response::HTTP_BAD_REQUEST);
-        }
-
-        if ($exception instanceof TaskBadRequestHttpException) {
-            return response()->json([
-                'error' => 'Description is required.'
-            ], Response::HTTP_BAD_REQUEST);
-        }
-
-        return parent::render($request, $exception);
+    public function getForbiddenException()
+    {
+        return response()->json([
+            'data' => [
+                'message' => 'Access denied.',
+                'status_code' => Response::HTTP_FORBIDDEN
+            ]
+        ], Response::HTTP_FORBIDDEN);
     }
 }

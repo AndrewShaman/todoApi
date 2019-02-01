@@ -20,6 +20,22 @@ class ProjectsTest extends TestCase
     }
 
     /** @test */
+    function user_can_see_his_project()
+    {
+        $user = factory('App\User')->create();
+        $project = factory('App\Project')->create(['user_id' => $user->id]);
+
+        $this->apiAs($user, 'GET', "api/projects/$project->id")
+            ->assertJson([
+                'id' => $project->id,
+                'user_id' => $user->id,
+                'title' => $project->title,
+                'description' => $project->description,
+            ])
+            ->assertStatus(200);
+    }
+
+    /** @test */
     function user_can_see_only_his_projects()
     {
         $user = factory('App\User')->create();

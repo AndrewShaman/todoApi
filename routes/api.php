@@ -25,6 +25,7 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     
     Route::get('projects/{project}/tasks', 'TaskController@index');
     Route::post('projects/{project}/tasks', 'TaskController@store');
+    Route::get('projects/{project}/tasks/{task}', 'TaskController@show');
     Route::patch('projects/{project}/tasks/{task}', 'TaskController@update');
     Route::delete('projects/{project}/tasks/{task}', 'TaskController@destroy');
 });

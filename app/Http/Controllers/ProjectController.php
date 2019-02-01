@@ -2,15 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\CustomExceptions\ProjectBadRequestHttpException;
+use App\Http\Requests\ProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Project;
-use App\User;
-use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use App\Exceptions\CustomExceptions\NoContentHttpException;
+use App\Services\ApiHelper;
+use Illuminate\Http\Response;
 
 class ProjectController extends Controller
 {
@@ -23,81 +19,54 @@ class ProjectController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @return ProjectResource
+     * @param ProjectRequest $request
+     * @return mixed
      */
-    public function store(Request $request)
+    public function store(ProjectRequest $request)
     {
-        $this->isProjectValid($request);
-        $project = Project::create($request->all() + ['user_id' => auth()->id()]);
+        $project = Project::create($request->validated() + ['user_id' => auth()->id()]);
 
-        return new ProjectResource($project);
+        return $project;
     }
 
     /**
-     * @param Request $request
-     * @param Project $project
-     * @return ProjectResource
+     * @param int $id
+     * @return mixed
      */
-    public function show(Request $request, Project $project)
+    public function show(int $id)
     {
-        $this->isOwner($request, $project);
+        $project = Project::findOrFail($id);
+        $user = app()->make(ApiHelper::class);
+        $user->isOwner($project);
 
-        return new ProjectResource($project);
+        return $project;
     }
 
     /**
-     * @param Request $request
+     * @param ProjectRequest $request
      * @param Project $project
-     * @return ProjectResource
+     * @return Project
      */
-    public function update(Request $request, Project $project)
+    public function update(ProjectRequest $request, Project $project)
     {
-        $this->isOwner($request, $project);
-        $this->isProjectValid($request);
-        $project->update($request->only(['title', 'description']));
+        $user = app()->make(ApiHelper::class);
+        $user->isOwner($project);
+        $project->update($request->validated());
 
-        return new ProjectResource($project);
+        return $project;
     }
 
     /**
-     * @param Request $request
-     * @param Project $project
-     * @throws \Exception
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, Project $project)
+    public function destroy(int $id)
     {
-//        User::getUserAndProjectById(auth()->user()->id);
-//        $project = Project::findOrFail($id);
-        $this->isOwner($request, $project);
+        $project = Project::findOrFail($id);
+        $user = app()->make(ApiHelper::class);
+        $user->isOwner($project);
         $project->delete();
 
-        throw new NoContentHttpException();
-    }
-
-    /**
-     * @param Request $request
-     * @param Project $project
-     */
-    protected function isOwner(Request $request, Project $project)
-    {
-        if ($request->user()->id != $project->user_id) {
-            throw new AccessDeniedHttpException();
-        }
-    }
-
-    /**
-     * @param Request $request
-     */
-    protected function isProjectValid(Request $request)
-    {
-        $validated = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'description' => 'required|string|max:255'
-        ]);
-
-        if ($validated->fails()) {
-            throw new ProjectBadRequestHttpException();
-        }
+        return response()->json(null,Response::HTTP_NO_CONTENT);
     }
 }
