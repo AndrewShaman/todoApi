@@ -5,8 +5,6 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\apiAs;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ProjectsTest extends TestCase
 {
@@ -36,15 +34,6 @@ class ProjectsTest extends TestCase
     }
 
     /** @test */
-    function user_can_see_only_his_projects()
-    {
-        $user = factory('App\User')->create();
-        $project = factory('App\Project')->create(['user_id' => 999]);
-
-        $this->apiAs($user,'GET',"/api/projects/$project->id")->assertStatus(403);
-    }
-
-    /** @test */
     function user_can_create_a_project()
     {
         $user = factory('App\User')->create();
@@ -56,6 +45,7 @@ class ProjectsTest extends TestCase
         ]);
 
         $this->assertDatabaseHas('projects', [
+            'user_id' => $user->id,
             'title' => 'Title',
             'description' => 'Description'
         ]);
@@ -87,6 +77,24 @@ class ProjectsTest extends TestCase
         $this->apiAs($user, 'DELETE', "/api/projects/$project->id", $project->toArray())
             ->assertStatus(204);
         $this->assertDatabaseMissing('projects', $project->toArray());
+    }
+
+    /** @test */
+    function user_can_see_only_his_projects()
+    {
+        $user = factory('App\User')->create(['id' => 0]);
+        $project = factory('App\Project')->create(['user_id' => 1]);
+
+        $this->apiAs($user,'GET',"/api/projects/$project->id")->assertStatus(403);
+    }
+
+    /** @test */
+    function user_can_update_only_his_projects()
+    {
+        $user = factory('App\User')->create(['id' => 0]);
+        $project = factory('App\Project')->create(['user_id' => 1]);
+
+        $this->apiAs($user, 'PATCH', "/api/projects/$project->id", $project->toArray())->assertStatus(403);
     }
 
     /** @test */

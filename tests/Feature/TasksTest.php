@@ -75,16 +75,34 @@ class TasksTest extends TestCase
     }
 
     /** @test */
-    function user_can_update_and_complete_only_his_tasks()
+    function user_can_see_tasks_only_of_his_projects()
+    {
+        $user = factory('App\User')->create();
+        factory('App\Project')->create(['user_id' => 0]);
+        $task = factory('App\Task')->create();
+
+        $this->apiAs($user, 'GET', "api/projects/$task->project_id/tasks/$task->id")->assertStatus(403);
+    }
+
+    /** @test */
+    function user_can_update_only_his_tasks()
+    {
+        $user = factory('App\User')->create();
+        factory('App\Project')->create(['user_id' => 0]);
+        $task = factory('App\Task')->create();
+
+        $this->apiAs($user, 'PATCH', "api/projects/$task->project_id/tasks/$task->id", $task->toArray())
+            ->assertStatus(403);
+    }
+
+    /** @test */
+    function user_can_complete_only_his_tasks()
     {
         $user = factory('App\User')->create();
         factory('App\Project')->create(['user_id' => 0]);
         $task = factory('App\Task')->create();
 
         $this->apiAs($user, 'DELETE', "api/projects/$task->project_id/tasks/$task->id", $task->toArray())
-            ->assertStatus(403);
-
-        $this->apiAs($user, 'PATCH', "api/projects/$task->project_id/tasks/$task->id", $task->toArray())
             ->assertStatus(403);
     }
 }
