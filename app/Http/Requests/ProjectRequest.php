@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Project;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ProjectRequest extends FormRequest
@@ -15,8 +14,6 @@ class ProjectRequest extends FormRequest
     public function authorize()
     {
         return true;
-//        $project = Project::find($this->route('project'));
-//        return $project && $this->user()->can('show', $project);
     }
 
     /**

@@ -2,12 +2,9 @@
 
 namespace App;
 
-use Illuminate\Http\Request;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use function Symfony\Component\Debug\Tests\testHeader;
 use Tymon\JWTAuth\Contracts\JWTSubject;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class User extends Authenticatable implements JWTSubject
 {
