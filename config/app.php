@@ -178,6 +178,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\ApiHelperServiceProvider::class,
         App\Providers\ProjectServiceProvider::class,
+        App\Providers\TaskServiceProvider::class,
     ],
 
     /*

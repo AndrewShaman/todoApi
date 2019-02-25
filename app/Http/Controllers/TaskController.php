@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Services\ApiHelperService;
 use App\Http\Requests\TaskRequest;
 use App\Project;
+use App\Services\TaskService;
 use App\Task;
-use App\Http\Resources\TaskResource;
 use Illuminate\Http\Response;
 
 class TaskController extends Controller
@@ -17,12 +17,19 @@ class TaskController extends Controller
     protected $user;
 
     /**
+     * @var TaskService
+     */
+    protected $task;
+
+    /**
      * TaskController constructor.
      * @param ApiHelperService $service
+     * @param TaskService $taskService
      */
-    public function __construct(ApiHelperService $service)
+    public function __construct(ApiHelperService $service, TaskService $taskService)
     {
         $this->user = $service;
+        $this->task = $taskService;
     }
 
     /**
@@ -32,7 +39,7 @@ class TaskController extends Controller
     public function index(Project $project)
     {
         $this->user->isOwner($project);
-        return TaskResource::collection(Task::where('project_id', $project->id)->with('project')->paginate(20));
+        return $this->task->getTasksCollection($project);
     }
 
     /**
@@ -42,9 +49,7 @@ class TaskController extends Controller
      */
     public function store(TaskRequest $request, Project $project)
     {
-        $task = Task::create($request->validated() + ['project_id' => $project->id]);
-
-        return $task;
+        return $this->task->saveNewTask($request, $project);
     }
 
     /**
@@ -55,9 +60,7 @@ class TaskController extends Controller
     public function show(Project $project, int $id)
     {
         $this->user->isOwner($project);
-        $task = Task::where('project_id', $project->id)->findOrFail($id);
-
-        return $task;
+        return $this->task->getTask($project, $id);
     }
 
     /**
