@@ -85,7 +85,7 @@ class ProjectsTest extends TestCase
         $user = factory('App\User')->create(['id' => 0]);
         $project = factory('App\Project')->create(['user_id' => 1]);
 
-        $this->apiAs($user,'GET',"/api/projects/$project->id")->assertStatus(403);
+        $this->apiAs($user,'GET',"/api/projects/$project->id")->assertStatus(404);
     }
 
     /** @test */
