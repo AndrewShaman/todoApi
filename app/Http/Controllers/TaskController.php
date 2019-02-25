@@ -12,13 +12,26 @@ use Illuminate\Http\Response;
 class TaskController extends Controller
 {
     /**
+     * @var ApiHelper
+     */
+    protected $user;
+
+    /**
+     * TaskController constructor.
+     * @param ApiHelper $service
+     */
+    public function __construct(ApiHelper $service)
+    {
+        $this->user = $service;
+    }
+
+    /**
      * @param Project $project
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index(Project $project)
     {
-        $user = app()->make(ApiHelper::class);
-        $user->isOwner($project);
+        $this->user->isOwner($project);
         return TaskResource::collection(Task::where('project_id', $project->id)->with('project')->paginate(20));
     }
 
@@ -41,8 +54,7 @@ class TaskController extends Controller
      */
     public function show(Project $project, int $id)
     {
-        $user = app()->make(ApiHelper::class);
-        $user->isOwner($project);
+        $this->user->isOwner($project);
         $task = Task::where('project_id', $project->id)->findOrFail($id);
 
         return $task;
@@ -56,8 +68,7 @@ class TaskController extends Controller
      */
     public function update(Project $project, Task $task, TaskRequest $request)
     {
-        $user = app()->make(ApiHelper::class);
-        $user->isOwner($project);
+        $this->user->isOwner($project);
         $task->update($request->validated());
 
         return $task;
@@ -71,8 +82,7 @@ class TaskController extends Controller
      */
     public function destroy(Project $project, Task $task)
     {
-        $user = app()->make(ApiHelper::class);
-        $user->isOwner($project);
+        $this->user->isOwner($project);
         $task->delete();
 
         return response()->json(null, Response::HTTP_NO_CONTENT);
