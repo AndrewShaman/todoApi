@@ -94,7 +94,7 @@ class ProjectsTest extends TestCase
         $user = factory('App\User')->create(['id' => 0]);
         $project = factory('App\Project')->create(['user_id' => 1]);
 
-        $this->apiAs($user, 'PATCH', "/api/projects/$project->id", $project->toArray())->assertStatus(403);
+        $this->apiAs($user, 'PATCH', "/api/projects/$project->id", $project->toArray())->assertStatus(404);
     }
 
     /** @test */
@@ -103,6 +103,6 @@ class ProjectsTest extends TestCase
         $user = factory('App\User')->create(['id' => 0]);
         $project = factory('App\Project')->create(['user_id' => 1]);
 
-        $this->apiAs($user, 'DELETE', "/api/projects/$project->id", $project->toArray())->assertStatus(403);
+        $this->apiAs($user, 'DELETE', "/api/projects/$project->id", $project->toArray())->assertStatus(404);
     }
 }

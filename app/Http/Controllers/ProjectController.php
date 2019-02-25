@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Project;
-use App\Services\ApiHelper;
 use Illuminate\Http\Response;
 
 class ProjectController extends Controller
@@ -35,22 +34,19 @@ class ProjectController extends Controller
      */
     public function show(int $id)
     {
-        $project = Project::where('user_id', auth()->id())->findOrFail($id)/*->where('user_id' , auth()->id())->get()*/;
-//        $user = app()->make(ApiHelper::class);
-//        $user->isOwner($project);
+        $project = Project::where('user_id', auth()->id())->findOrFail($id);
 
         return $project;
     }
 
     /**
      * @param ProjectRequest $request
-     * @param Project $project
-     * @return Project
+     * @param int $id
+     * @return mixed
      */
-    public function update(ProjectRequest $request, Project $project)
+    public function update(ProjectRequest $request, int $id)
     {
-        $user = app()->make(ApiHelper::class);
-        $user->isOwner($project);
+        $project = Project::where('user_id', auth()->id())->findOrFail($id);
         $project->update($request->validated());
 
         return $project;
@@ -62,9 +58,7 @@ class ProjectController extends Controller
      */
     public function destroy(int $id)
     {
-        $project = Project::findOrFail($id);
-        $user = app()->make(ApiHelper::class);
-        $user->isOwner($project);
+        $project = Project::where('user_id', auth()->id())->findOrFail($id);
         $project->delete();
 
         return response()->json(null,Response::HTTP_NO_CONTENT);
