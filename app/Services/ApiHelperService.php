@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Http\Requests\ProjectRequest;
 use App\Project;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use App\Http\Resources\ProjectResource;
 
-class ApiHelper
+class ApiHelperService
 {
     /**
      * @param Project $project

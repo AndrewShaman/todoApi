@@ -3,18 +3,31 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProjectRequest;
-use App\Http\Resources\ProjectResource;
-use App\Project;
+use App\Services\ProjectService;
 use Illuminate\Http\Response;
 
 class ProjectController extends Controller
 {
     /**
+     * @var ProjectService
+     */
+    protected $project;
+
+    /**
+     * ProjectController constructor.
+     * @param ProjectService $projectService
+     */
+    public function __construct(ProjectService $projectService)
+    {
+        $this->project = $projectService;
+    }
+
+    /**
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
-        return ProjectResource::collection(Project::where('user_id', auth()->id())->with('user')->paginate(20));
+        return $this->project->getProjectsCollection();
     }
 
     /**
@@ -23,9 +36,7 @@ class ProjectController extends Controller
      */
     public function store(ProjectRequest $request)
     {
-        $project = Project::create($request->validated() + ['user_id' => auth()->id()]);
-
-        return $project;
+        return $this->project->saveNewProject($request);
     }
 
     /**
@@ -34,9 +45,7 @@ class ProjectController extends Controller
      */
     public function show(int $id)
     {
-        $project = Project::where('user_id', auth()->id())->findOrFail($id);
-
-        return $project;
+        return $this->project->getProject($id);
     }
 
     /**
@@ -46,10 +55,7 @@ class ProjectController extends Controller
      */
     public function update(ProjectRequest $request, int $id)
     {
-        $project = Project::where('user_id', auth()->id())->findOrFail($id);
-        $project->update($request->validated());
-
-        return $project;
+        return $this->project->getProject($id)->update($request->validated());
     }
 
     /**
@@ -58,8 +64,7 @@ class ProjectController extends Controller
      */
     public function destroy(int $id)
     {
-        $project = Project::where('user_id', auth()->id())->findOrFail($id);
-        $project->delete();
+        $this->project->getProject($id)->delete();
 
         return response()->json(null,Response::HTTP_NO_CONTENT);
     }

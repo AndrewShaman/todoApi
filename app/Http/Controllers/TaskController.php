@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\ApiHelper;
+use App\Services\ApiHelperService;
 use App\Http\Requests\TaskRequest;
 use App\Project;
 use App\Task;
@@ -12,15 +12,15 @@ use Illuminate\Http\Response;
 class TaskController extends Controller
 {
     /**
-     * @var ApiHelper
+     * @var ApiHelperService
      */
     protected $user;
 
     /**
      * TaskController constructor.
-     * @param ApiHelper $service
+     * @param ApiHelperService $service
      */
-    public function __construct(ApiHelper $service)
+    public function __construct(ApiHelperService $service)
     {
         $this->user = $service;
     }

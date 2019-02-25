@@ -177,7 +177,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\ApiHelperServiceProvider::class,
-
+        App\Providers\ProjectServiceProvider::class,
     ],
 
     /*

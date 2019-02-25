@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use App\Services\ApiHelperService;
+use App\Services\ProjectService;
 use Illuminate\Support\ServiceProvider;
 
-class ApiHelperServiceProvider extends ServiceProvider
+class ProjectServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
@@ -24,8 +24,8 @@ class ApiHelperServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind(ApiHelperService::class, function (){
-            return new ApiHelperService();
+        $this->app->bind(ProjectService::class, function (){
+            return new ProjectService();
         });
     }
 }
