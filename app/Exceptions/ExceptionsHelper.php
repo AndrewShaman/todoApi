@@ -8,51 +8,36 @@ trait ExceptionsHelper
 {
     public function getModelJsonResponseException()
     {
-        return response()->json([
-            'data' => [
-                'message' => 'Model not found',
-                'status_code' => Response::HTTP_NOT_FOUND
-            ]
-        ], Response::HTTP_NOT_FOUND);
+        return $this->getResponse('Model not found.', Response::HTTP_NOT_FOUND);
     }
 
     public function getHttpJsonResponseException()
     {
-        return response()->json([
-            'data' => [
-                'message' => 'Endpoint not found',
-                'status_code' => Response::HTTP_NOT_FOUND
-            ]
-        ], Response::HTTP_NOT_FOUND);
+        return $this->getResponse('Endpoint not found.', Response::HTTP_NOT_FOUND);
     }
 
     public function getBadRequestJsonResponseException($exception)
     {
-        return response()->json([
-            'data' => [
-                'message' => $exception->getMessage(),
-                'status_code' => Response::HTTP_BAD_REQUEST
-            ]
-        ], Response::HTTP_BAD_REQUEST);
+        return $this->getResponse($exception->getMessage(), Response::HTTP_BAD_REQUEST);
     }
 
     public function getValidationJsonResponseException($exception)
     {
-        return response()->json([
-            'data' => [
-                'message' => $exception->errors(),
-                'status_code' => Response::HTTP_BAD_REQUEST
-            ]
-        ], Response::HTTP_BAD_REQUEST);
+        return $this->getResponse($exception->errors(), Response::HTTP_BAD_REQUEST);
     }
 
     public function getForbiddenException()
     {
-        return response()->json([
+        return $this->getResponse('Access denied.', Response::HTTP_FORBIDDEN);
+    }
+
+    private function getResponse($message, $response)
+    {
+        return \response()->json([
             'data' => [
-                'message' => 'Access denied.',
-                'status_code' => Response::HTTP_FORBIDDEN
+                'message' => $message,
+                'status_code' => $response
             ]
-        ], Response::HTTP_FORBIDDEN);
+        ], $response);
     }
 }

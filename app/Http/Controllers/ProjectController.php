@@ -35,7 +35,7 @@ class ProjectController extends Controller
      */
     public function show(int $id)
     {
-        $project = Project::findOrFail($id);
+        $project = Project::findOrFail($id)/*->where('user_id' , auth()->id())->get()*/;
         $user = app()->make(ApiHelper::class);
         $user->isOwner($project);
 

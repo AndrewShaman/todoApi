@@ -43,7 +43,7 @@ class TaskController extends Controller
     {
         $user = app()->make(ApiHelper::class);
         $user->isOwner($project);
-        $task = Task::findOrFail($id)->where('project_id', $project->id)->get();
+        $task = Task::findOrFail($id)->where('project_id', $project->id)->find($id);
 
         return $task;
     }
