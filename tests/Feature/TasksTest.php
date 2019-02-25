@@ -36,11 +36,11 @@ class TasksTest extends TestCase
         $task = factory('App\Task')->create(['project_id' => $project->id]);
 
         $this->apiAs($user, 'GET', "api/projects/$project->id/tasks/$task->id")
-            ->assertJson([[
+            ->assertJson([
                 'id' => $task->id,
                 'project_id' => $project->id,
                 'description' => $task->description,
-            ]])
+            ])
             ->assertStatus(200);
     }
 
