@@ -55,7 +55,10 @@ class ProjectController extends Controller
      */
     public function update(ProjectRequest $request, int $id)
     {
-        return $this->project->getProject($id)->update($request->validated());
+        $project = $this->project->getProject($id);
+        $project->update($request->validated());
+
+        return response()->json($project, Response::HTTP_OK);
     }
 
     /**
